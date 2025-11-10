@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ticky — Welcome</title>
+  <meta name="description" content="ticky.dev — Ticky. AI-assisted dev. Clean, a touch hacker, never corny." />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+    :root{--bg:#050607;--surface:#0a0d0f;--edge:#12181c;--text:#e7f2e9;--muted:#91a39a;--acc1:#7ee787;--acc2:#22c55e;--ring:rgba(34,197,94,.28)}
+
+    /* Background texture */
+    .gridbg{position:fixed;inset:0;z-index:-3;background:
+      radial-gradient(1200px 800px at 12% -10%, color-mix(in oklab,var(--acc1) 12%, transparent), transparent 60%),
+      radial-gradient(900px 600px at 120% -10%, color-mix(in oklab,var(--acc2) 10%, transparent), transparent 60%),
+      linear-gradient(180deg, #020303 0%, var(--bg) 40% 100%)}
+    .scanlines{position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+      repeating-linear-gradient(0deg, transparent 0 22px, rgba(126,231,135,.05) 22px 23px);mix-blend-mode:soft-light;opacity:.35}
+    .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 120 120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(%23n)" opacity=".05"/></svg>');
+      opacity:.7;mix-blend-mode:overlay}
+
+    .wrap{max-width:1100px;margin:0 auto;padding:28px}
+    header{position:sticky;top:0;background:color-mix(in oklab,var(--bg) 78%, transparent);backdrop-filter:saturate(130%) blur(8px);border-bottom:1px solid var(--edge);z-index:50}
+    nav{display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:26px;height:26px;border-radius:8px;background:conic-gradient(from 200deg at 50% 50%, var(--acc1), var(--acc2), var(--acc1));box-shadow:0 0 0 3px var(--ring)}
+    .brand h1{margin:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+    .navlinks{display:flex;gap:18px;align-items:center}
+    .navlinks a{color:var(--muted);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:10px;border:1px solid transparent}
+    .navlinks a:hover{color:var(--text);border-color:var(--edge);background:color-mix(in oklab,var(--surface) 92%, transparent)}
+    .navlinks a.active{color:var(--text);border-color:color-mix(in oklab,var(--acc1) 35%, var(--edge));box-shadow:0 0 0 3px var(--ring)}
+
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:34px;align-items:center;min-height:72vh}
+    .card{background:linear-gradient(180deg, color-mix(in oklab, var(--surface) 94%, transparent), color-mix(in oklab, var(--surface) 88%, transparent));border:1px solid var(--edge);border-radius:18px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.45);position:relative;overflow:hidden}
+    .eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+    .title{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;font-size:46px;line-height:1.1;margin:.25rem 0 0}
+    .subtitle{color:var(--muted);margin:10px 0 16px;position:relative}
+    .subtitle::after{content:"_";display:inline-block;margin-left:6px;opacity:.85;animation:blink 1.2s steps(1,end) infinite}
+    @keyframes blink{50%{opacity:.1}}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .chip{font-size:12px;border:1px solid var(--edge);background:linear-gradient(to bottom right, color-mix(in oklab,var(--surface) 92%, transparent), color-mix(in oklab,var(--surface) 80%, transparent));padding:7px 11px;border-radius:999px;color:var(--muted)}
+    .avatar{aspect-ratio:1/1;border-radius:18px;background:url('boxpfp.png') center/cover no-repeat;border:1px solid var(--edge);box-shadow:0 10px 50px rgba(0,0,0,.4);opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .8s ease}
+    .avatar.is-in{opacity:1;transform:none}
+    footer{text-align:center;color:var(--muted);font-size:13px;margin:40px 0}
+    .glitch{position:relative;display:inline-block}
+    .glitch::after{content:attr(data-text);position:absolute;left:2px;top:0;clip-path:inset(0 0 50% 0);text-shadow:-2px 0 var(--acc2);opacity:.8;filter:blur(.2px)}
+    .glitch::before{content:attr(data-text);position:absolute;left:-2px;top:0;clip-path:inset(50% 0 0 0);text-shadow:2px 0 var(--acc1);opacity:.8;filter:blur(.2px)}
+
+    /* BOOT OVERLAY */
+    #boot{position:fixed;inset:0;background:#050607;display:grid;place-items:center;z-index:9999;color:#cfead4;transition:opacity 1s ease}
+    #boot.hidden{opacity:0;pointer-events:none;visibility:hidden}
+    .boot-term{width:min(780px,92vw);border:1px solid var(--edge);border-radius:14px;background:#0a0d0f;box-shadow:0 30px 80px rgba(0,0,0,.55);padding:16px 16px 18px;font-family:ui-monospace,Menlo,Consolas,monospace;position:relative;overflow:hidden}
+    .bar{height:28px;border-bottom:1px solid var(--edge);background:linear-gradient(180deg,#0c1210,#0a0d0f);display:flex;align-items:center;gap:8px;padding:0 10px;color:#89b59b;font-size:12px;letter-spacing:.06em}
+    .dot{width:10px;height:10px;border-radius:50%;background:#2a332d;box-shadow:0 0 0 1px #1a231c inset}
+    .boot-log{padding:12px 10px 6px;font-size:14px;line-height:1.6;min-height:160px}
+    .boot-log p{margin:0 0 6px}
+    .ok{color:#7ee787}
+    .cursor{display:inline-block;width:.6ch;background:#7ee787;margin-left:4px;animation:blink 1.2s steps(1,end) infinite}
+    .enter-btn{margin-top:10px;display:inline-block;border:1px solid var(--edge);border-radius:10px;padding:10px 14px;color:#041005;background:linear-gradient(135deg,var(--acc1) 0%,var(--acc2) 70%);text-decoration:none;font-weight:600}
+
+    main[hidden]{display:none}
+    main{opacity:0;transition:opacity 1s ease}
+
+    /* AUDIO CONTROL (bottom-left) */
+    .audio-ctrl{
+      position:fixed;left:16px;bottom:16px;z-index:100;
+      display:inline-flex;align-items:center;gap:10px;
+      border:1px solid var(--edge);border-radius:12px;padding:8px 12px;
+      background:linear-gradient(180deg,color-mix(in oklab,var(--surface) 96%,transparent),color-mix(in oklab,var(--surface) 88%,transparent));
+      color:var(--text);font-size:14px;user-select:none
+    }
+    .audio-ctrl[hidden]{display:none}
+    .audio-ctrl button{
+      appearance:none;border:none;background:transparent;color:inherit;font:inherit;
+      cursor:pointer;display:flex;align-items:center;gap:8px
+    }
+    .audio-ctrl .pill{font-size:12px;color:var(--muted);border:1px solid var(--edge);border-radius:999px;padding:2px 8px}
+
+    /* Volume slider styling (always visible) */
+    .audio-ctrl input[type=range]{
+      -webkit-appearance:none;appearance:none;width:120px;height:4px;border-radius:6px;background:var(--edge);outline:none;cursor:pointer
+    }
+    .audio-ctrl input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;
+      background:var(--acc1);box-shadow:0 0 6px var(--acc1);transition:.2s ease
+    }
+    .audio-ctrl input[type=range]::-webkit-slider-thumb:hover{background:var(--acc2);box-shadow:0 0 10px var(--acc2)}
+    /* Firefox */
+    .audio-ctrl input[type=range]::-moz-range-track{height:4px;background:var(--edge);border:none;border-radius:6px}
+    .audio-ctrl input[type=range]::-moz-range-thumb{width:14px;height:14px;border:none;border-radius:50%;background:var(--acc1);box-shadow:0 0 6px var(--acc1)}
+    .audio-ctrl input[type=range]:hover::-moz-range-thumb{background:var(--acc2);box-shadow:0 0 10px var(--acc2)}
+
+    @media (prefers-reduced-motion: reduce){#boot,main{transition:none}.subtitle::after,.cursor{animation:none}}
+  </style>
+</head>
+<body>
+  <!-- Boot Overlay -->
+  <div id="boot" role="dialog" aria-modal="true" aria-label="Booting screen">
+    <div class="boot-term" aria-live="polite">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>ticky.dev — init</span></div>
+      <div class="boot-log" id="bootLog"></div>
+      <div id="enterWrap" style="display:none; padding:0 10px 6px;">
+        <a href="#" id="enterBtn" class="enter-btn">click to enter</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Background audio -->
+  <audio id="bgm" src="audio.mp3" preload="auto" loop playsinline></audio>
+
+  <!-- Audio control -->
+  <div id="audioCtrl" class="audio-ctrl" hidden>
+    <button id="muteBtn" aria-pressed="false" aria-label="Mute background audio">
+      <svg id="iconUnmuted" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a3.5 3.5 0 00-2.02-3.17v6.34A3.5 3.5 0 0016.5 12zm-2.02-7.32v2.16a6 6 0 010 10.32v2.16c3.58-1.14 6.02-4.5 6.02-8.64s-2.44-7.5-6.02-8.64z"/></svg>
+      <svg id="iconMuted" width="18" height="18" viewBox="0 0 24 24" style="display:none" aria-hidden="true"><path fill="currentColor" d="M3 10v4h4l5 5V5L7 10H3zm13.59-3L15 8.59 17.41 11 15 13.41 16.59 15 19 12.59 21.41 15 23 13.41 20.59 11 23 8.59 21.41 7 19 9.41 16.59 7z"/></svg>
+      <span id="muteLabel">Mute</span>
+      <span class="pill">audio</span>
+    </button>
+    <input id="volumeSlider" type="range" min="0" max="100" value="100" step="1" aria-label="Volume"/>
+  </div>
+
+  <!-- Real Page -->
+  <div class="gridbg"></div>
+  <div class="scanlines"></div>
+  <div class="grain"></div>
+
+  <header>
+    <div class="wrap">
+      <nav>
+        <div class="brand"><div class="logo"></div><h1>ticky.dev</h1></div>
+        <div class="navlinks">
+          <a class="active" href="index.html">Welcome</a>
+          <a href="about.html">About Me</a>
+          <a href="projects.html">Projects</a>
+          <a href="contact.html">Contact</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" hidden aria-hidden="true">
+    <section class="hero">
+      <div class="card">
+        <p class="eyebrow">WELCOME</p>
+        <h2 class="title">Hi, I'm <span class="glitch" data-text="Ticky">Ticky</span>.</h2>
+        <p class="subtitle">AI-assisted developer. I like building apps with AI.</p>
+        <div class="chips">
+          <span class="chip">HTML</span>
+          <span class="chip">PYTHON</span>
+        </div>
+      </div>
+      <div class="avatar" aria-label="Avatar"></div>
+    </section>
+    <footer>© <span id="y"></span> Ticky.</footer>
+  </main>
+
+  <script>
+    // Footer year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    const boot = document.getElementById('boot');
+    const bootLog = document.getElementById('bootLog');
+    const enterWrap = document.getElementById('enterWrap');
+    const enterBtn = document.getElementById('enterBtn');
+    const main = document.querySelector('main');
+    const avatar = document.querySelector('.avatar');
+
+    const audio = document.getElementById('bgm');
+    const audioCtrl = document.getElementById('audioCtrl');
+    const muteBtn = document.getElementById('muteBtn');
+    const iconMuted = document.getElementById('iconMuted');
+    const iconUnmuted = document.getElementById('iconUnmuted');
+    const muteLabel = document.getElementById('muteLabel');
+    const volumeSlider = document.getElementById('volumeSlider');
+
+    const MUTED_KEY = 'ticky_audio_muted';
+    const VOL_KEY = 'ticky_volume';
+    const BOOTED_KEY = 'ticky_booted_session'; // session-only (skip on refresh, reset on tab close)
+
+    // Load saved volume (0–1) and apply slider position (0–100)
+    const savedVol = localStorage.getItem(VOL_KEY);
+    if (savedVol !== null && !isNaN(parseFloat(savedVol))) {
+      const v = Math.min(Math.max(parseFloat(savedVol), 0), 1);
+      audio.volume = v;
+      volumeSlider.value = Math.round(v * 100);
+    } else {
+      audio.volume = 1;
+      volumeSlider.value = 100;
+    }
+
+    // ---------- Boot Skip ----------
+    const alreadyBootedThisTab = sessionStorage.getItem(BOOTED_KEY) === '1';
+    if (alreadyBootedThisTab) {
+      boot.classList.add('hidden');
+      showMain();
+      // start muted so autoplay is allowed on refresh
+      audio.muted = true;
+      audioCtrl.hidden = false;
+      updateMuteUI();
+      audio.play().catch(()=>{});
+    } else {
+      runBoot();
+    }
+
+    // ---------- Boot Sequence ----------
+    async function runBoot(){
+      addLine('[*] booting up website..');
+      await sleep(700);
+
+      addLine('[*] loading user IP<span class="cursor"></span>');
+      const ip = await getIP();
+      bootLog.lastElementChild.remove();
+      addLine(`[OK] user ip: <span class="ok">${ip}</span>`);
+
+      await sleep(600);
+      addLine('[*] confirming not robot..');
+      await sleep(900);
+      addLine('[OK] human-ish signature confirmed', 'ok');
+
+      await sleep(500);
+      addLine('> press enter to continue');
+      enterWrap.style.display = 'block';
+      enterBtn.focus();
+    }
+
+    // ---------- Enter click: start audio + fade + remember session ----------
+    enterBtn?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      sessionStorage.setItem(BOOTED_KEY, '1');
+
+      // Show control now
+      audioCtrl.hidden = false;
+
+      // Respect saved mute pref (default: NOT muted)
+      const wasMuted = localStorage.getItem(MUTED_KEY) === '1';
+      audio.muted = !!wasMuted;
+
+      // Start from beginning and play (user gesture -> should allow unmuted)
+      audio.currentTime = 0;
+      try { await audio.play(); } catch(err) {
+        // if blocked, try muted then allow user to unmute
+        audio.muted = true;
+        try { await audio.play(); } catch(_){ /* ignore */ }
+      }
+      updateMuteUI();
+
+      // Fade out boot / in main
+      boot.classList.add('hidden');
+      showMain();
+    });
+
+    // ---------- Mute / Unmute control ----------
+    muteBtn.addEventListener('click', async () => {
+      audio.muted = !audio.muted;
+      localStorage.setItem(MUTED_KEY, audio.muted ? '1' : '0');
+      updateMuteUI();
+      if (!audio.muted && audio.paused) {
+        try { await audio.play(); } catch(e) {}
+      }
+    });
+
+    // ---------- Volume slider ----------
+    volumeSlider.addEventListener('input', () => {
+      const vol = Math.min(Math.max(volumeSlider.value / 100, 0), 1);
+      audio.volume = vol;
+      localStorage.setItem(VOL_KEY, vol.toString());
+      // If volume > 0 and currently muted, auto-unmute for convenience
+      if (vol > 0 && audio.muted) {
+        audio.muted = false;
+        localStorage.setItem(MUTED_KEY, '0');
+        updateMuteUI();
+      }
+    });
+
+    function updateMuteUI(){
+      if (audio.muted) {
+        iconUnmuted.style.display = 'none';
+        iconMuted.style.display = '';
+        muteBtn.setAttribute('aria-pressed','true');
+        muteBtn.setAttribute('aria-label','Unmute background audio');
+        muteLabel.textContent = 'Unmute';
+      } else {
+        iconUnmuted.style.display = '';
+        iconMuted.style.display = 'none';
+        muteBtn.setAttribute('aria-pressed','false');
+        muteBtn.setAttribute('aria-label','Mute background audio');
+        muteLabel.textContent = 'Mute';
+      }
+    }
+
+    // ---------- Helpers ----------
+    function showMain(){
+      main.hidden = false;
+      main.removeAttribute('aria-hidden');
+      requestAnimationFrame(()=>{ main.style.opacity = 1; avatar.classList.add('is-in'); });
+    }
+    function addLine(html, cls) {
+      const p = document.createElement('p');
+      if (cls) p.className = cls;
+      p.innerHTML = html;
+      bootLog.appendChild(p);
+      bootLog.scrollTop = bootLog.scrollHeight;
+    }
+    function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+    async function getIP() {
+      try {
+        const r = await fetch('https://api.ipify.org?format=json', {cache:'no-store'});
+        if (!r.ok) throw new Error('bad');
+        const { ip } = await r.json();
+        return ip;
+      } catch {
+        return 'unknown';
+      }
+    }
+  </script>
+</body>
+</html>

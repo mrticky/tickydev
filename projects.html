@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projects — Ticky</title>
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    /* Reset */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+
+    /* Theme (same as index) */
+    :root{--bg:#050607;--surface:#0a0d0f;--edge:#12181c;--text:#e7f2e9;--muted:#91a39a;--acc1:#7ee787;--acc2:#22c55e;--ring:rgba(34,197,94,.28)}
+
+    /* Background layers */
+    .gridbg{position:fixed;inset:0;z-index:-3;background:
+      radial-gradient(1200px 800px at 12% -10%, color-mix(in oklab,var(--acc1) 12%, transparent), transparent 60%),
+      radial-gradient(900px 600px at 120% -10%, color-mix(in oklab,var(--acc2) 10%, transparent), transparent 60%),
+      linear-gradient(180deg, #020303 0%, var(--bg) 40% 100%)}
+    .scanlines{position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+      repeating-linear-gradient(0deg, transparent 0 22px, rgba(126,231,135,.05) 22px 23px);mix-blend-mode:soft-light;opacity:.35}
+    .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 120 120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(%23n)" opacity=".05"/></svg>');
+      opacity:.7;mix-blend-mode:overlay}
+
+    /* Layout */
+    .wrap{max-width:1100px;margin:0 auto;padding:28px}
+    header{position:sticky;top:0;background:color-mix(in oklab, var(--bg) 78%, transparent);backdrop-filter:saturate(130%) blur(8px);border-bottom:1px solid var(--edge);z-index:50}
+    nav{display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:26px;height:26px;border-radius:8px;background:conic-gradient(from 200deg at 50% 50%, var(--acc1), var(--acc2), var(--acc1));box-shadow:0 0 0 3px var(--ring)}
+    .brand h1{margin:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+    .navlinks{display:flex;gap:18px;align-items:center}
+    .navlinks a{color:var(--muted);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:10px;border:1px solid transparent}
+    .navlinks a:hover{color:var(--text);border-color:var(--edge);background:color-mix(in oklab,var(--surface) 92%, transparent)}
+    .navlinks a.active{color:var(--text);border-color:color-mix(in oklab,var(--acc1) 35%, var(--edge));box-shadow:0 0 0 3px var(--ring)}
+
+    /* Projects */
+    .toolbar{display:flex;gap:12px;align-items:center;margin:14px 0 20px}
+    .search{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--edge);background:linear-gradient(180deg, color-mix(in oklab,var(--surface) 96%, transparent), color-mix(in oklab,var(--surface) 88%, transparent));border-radius:12px;padding:10px 12px}
+    .search input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font:inherit}
+    .select{border:1px solid var(--edge);background:linear-gradient(180deg, color-mix(in oklab,var(--surface) 96%, transparent), color-mix(in oklab,var(--surface) 88%, transparent));color:var(--text);border-radius:12px;padding:10px 12px;font:inherit}
+
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .repo{border:1px solid var(--edge);border-radius:16px;overflow:hidden;background:linear-gradient(180deg, color-mix(in oklab,var(--surface) 94%, transparent), color-mix(in oklab,var(--surface) 86%, transparent));transition:transform .18s ease, border-color .18s ease}
+    .repo:hover{transform:translateY(-2px);border-color:color-mix(in oklab, var(--acc1) 40%, var(--edge))}
+    .repo .body{padding:14px 16px 16px}
+    .repo h3{margin:0 0 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:18px}
+    .repo a.name{color:var(--text);text-decoration:none}
+    .desc{margin:6px 0 10px;color:var(--muted);min-height:1.2em}
+    .meta{display:flex;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:12px}
+    .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--edge);border-radius:999px;padding:5px 9px}
+    .topics{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .topic{font-size:11px;border:1px dashed var(--edge);padding:4px 8px;border-radius:999px;color:var(--muted)}
+    .links{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:8px 12px;border:1px solid var(--edge);background:var(--surface);color:var(--text);text-decoration:none;font-size:14px}
+    .btn.primary{background:linear-gradient(135deg, var(--acc1) 0%, var(--acc2) 70%);color:#041005;border:none}
+
+    /* Thumbnail */
+    .thumbWrap{position:relative;aspect-ratio:16/9;background:#0d1216;border-bottom:1px solid var(--edge)}
+    .thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s ease}
+    .thumb.loaded{opacity:1}
+    .thumbWrap:hover .thumb.loaded{filter:contrast(1.04) saturate(1.02)}
+
+    /* Skeleton / states */
+    .skeleton{border:1px solid var(--edge);border-radius:16px;padding:0;overflow:hidden}
+    .sk-top{aspect-ratio:16/9;background:linear-gradient(90deg,#0b0f12 25%,#0d1216 37%,#0b0f12 63%);background-size:400% 100%;animation:shimmer 1.3s infinite}
+    .sk-body{padding:16px;background:linear-gradient(90deg,#0b0f12 25%,#0d1216 37%,#0b0f12 63%);background-size:400% 100%;animation:shimmer 1.3s infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .state{color:var(--muted);text-align:center;margin:24px 0}
+
+    footer{text-align:center;color:var(--muted);font-size:13px;margin:40px 0}
+  </style>
+</head>
+<body>
+  <div class="gridbg"></div>
+  <div class="scanlines"></div>
+  <div class="grain"></div>
+
+  <header>
+    <div class="wrap">
+      <nav>
+        <div class="brand"><div class="logo"></div><h1>ticky.dev</h1></div>
+        <div class="navlinks">
+          <a href="index.html">Welcome</a>
+          <a href="about.html">About Me</a>
+          <a class="active" href="projects.html">Projects</a>
+          <a href="contact.html">Contact</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section>
+      <h2 style="font-family:ui-monospace,Menlo,Consolas,monospace;margin:6px 0 10px">GitHub Projects</h2>
+      <p style="color:var(--muted);margin:0 0 16px">Live from <a href="https://github.com/mrticky" target="_blank" rel="noopener" style="color:var(--acc1);text-decoration:none">github.com/mrticky</a></p>
+
+      <div class="toolbar">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10 2a8 8 0 105.293 14.293l4.207 4.207 1.414-1.414-4.207-4.207A8 8 0 0010 2zm0 2a6 6 0 110 12A6 6 0 0110 4z"/></svg>
+          <input id="q" type="search" placeholder="Search repositories...">
+        </div>
+        <select id="sort" class="select" aria-label="Sort repositories">
+          <option value="updated">Sort: Recently updated</option>
+          <option value="created">Sort: Recently created</option>
+          <option value="stars">Sort: Most stars</option>
+          <option value="name">Sort: Name (A–Z)</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px">
+          <input id="hideForks" type="checkbox" checked>
+          Hide forks
+        </label>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite">
+        <!-- skeletons -->
+        <div class="skeleton"><div class="sk-top"></div><div class="sk-body" style="height:120px"></div></div>
+        <div class="skeleton"><div class="sk-top"></div><div class="sk-body" style="height:120px"></div></div>
+        <div class="skeleton"><div class="sk-top"></div><div class="sk-body" style="height:120px"></div></div>
+        <div class="skeleton"><div class="sk-top"></div><div class="sk-body" style="height:120px"></div></div>
+      </div>
+
+      <div id="state" class="state" hidden>Loading repositories…</div>
+    </section>
+
+    <footer>© <span id="y"></span> Ticky.</footer>
+  </main>
+
+  <script>
+    // Year
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    const grid = document.getElementById('grid');
+    const stateEl = document.getElementById('state');
+    const q = document.getElementById('q');
+    const sortSel = document.getElementById('sort');
+    const hideForks = document.getElementById('hideForks');
+
+    let repos = [];
+    let filtered = [];
+
+    async function fetchRepos() {
+      try {
+        state(true, 'Loading repositories…');
+        const res = await fetch('https://api.github.com/users/mrticky/repos?per_page=100&sort=updated', { cache: 'no-store' });
+        if (!res.ok) throw new Error('GitHub API error');
+        const data = await res.json();
+        repos = Array.isArray(data) ? data : [];
+        render();
+      } catch (e) {
+        console.error(e);
+        state(true, 'Could not load repositories (rate limited or network issue). Try again later.');
+        grid.innerHTML = '';
+      } finally {
+        if (grid) Array.from(grid.querySelectorAll('.skeleton')).forEach(s => s.remove());
+      }
+    }
+
+    function state(show, msg='') {
+      stateEl.hidden = !show;
+      stateEl.textContent = msg;
+    }
+
+    function filterAndSort() {
+      const term = q.value.trim().toLowerCase();
+      const hide = hideForks.checked;
+
+      filtered = repos.filter(r => {
+        if (hide && r.fork) return false;
+        if (!term) return true;
+        const topics = r.topics ? r.topics.join(' ') : '';
+        return (
+          (r.name && r.name.toLowerCase().includes(term)) ||
+          (r.description && String(r.description).toLowerCase().includes(term)) ||
+          topics.toLowerCase().includes(term) ||
+          (r.language && String(r.language).toLowerCase().includes(term))
+        );
+      });
+
+      switch (sortSel.value) {
+        case 'created':
+          filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+        case 'stars':
+          filtered.sort((a,b) => (b.stargazers_count||0) - (a.stargazers_count||0));
+          break;
+        case 'name':
+          filtered.sort((a,b) => a.name.localeCompare(b.name));
+          break;
+        default:
+          filtered.sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+      }
+    }
+
+    function render() {
+      filterAndSort();
+      state(filtered.length === 0, 'No repositories match your filters.');
+      grid.innerHTML = '';
+
+      for (const r of filtered) {
+        const lang = r.language || '—';
+        const stars = r.stargazers_count || 0;
+        const updated = timeSince(new Date(r.updated_at));
+        const desc = r.description ? escapeHTML(r.description) : '';
+        const topics = (r.topics || []).slice(0, 6).map(t => `<span class="topic">${escapeHTML(t)}</span>`).join('');
+        const homepage = r.homepage && r.homepage.trim() ? r.homepage : '';
+
+        const candidates = buildImageCandidates(r); // github raw image candidates
+
+        const html = `
+          <article class="repo">
+            <div class="thumbWrap" data-title="${escapeAttr(r.name)}" data-candidates="${candidates.map(escapeAttr).join(',')}">
+              <img class="thumb" alt="${escapeAttr(r.name)} preview">
+            </div>
+            <div class="body">
+              <h3><a class="name" href="${escapeAttr(r.html_url)}" target="_blank" rel="noopener">${escapeHTML(r.name)}</a></h3>
+              <p class="desc">${desc}</p>
+              <div class="meta">
+                <span class="badge" title="Primary language">${escapeHTML(lang)}</span>
+                <span class="badge" title="Stars">★ ${stars}</span>
+                <span class="badge" title="Last updated">Updated ${updated}</span>
+                ${r.fork ? `<span class="badge" title="Forked repo">Fork</span>` : ''}
+              </div>
+              ${topics ? `<div class="topics">${topics}</div>` : ''}
+              <div class="links">
+                <a class="btn primary" href="${escapeAttr(r.html_url)}" target="_blank" rel="noopener">View on GitHub</a>
+                ${homepage ? `<a class="btn" href="${escapeAttr(homepage)}" target="_blank" rel="noopener">Live demo</a>` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+        grid.insertAdjacentHTML('beforeend', html);
+      }
+
+      // after rendering, generate quick banners, then try to replace with real previews
+      for (const wrap of grid.querySelectorAll('.thumbWrap')) {
+        const img = wrap.querySelector('.thumb');
+        const title = wrap.getAttribute('data-title') || 'repo';
+        const list = (wrap.getAttribute('data-candidates') || '').split(',').map(s => s.trim()).filter(Boolean);
+
+        // 1) set instant generated banner (NO shadow version)
+        img.src = makeBanner(title);
+        img.classList.add('loaded');
+
+        // 2) then attempt to replace with a real image if found
+        replaceWithRealPreview(img, list, 0);
+      }
+    }
+
+    function buildImageCandidates(r) {
+      const owner = r.owner?.login || 'mrticky';
+      const repo = r.name;
+      const branch = r.default_branch || 'main';
+      const base = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/`;
+      const names = [
+        'preview.png','preview.jpg','preview.jpeg','preview.webp',
+        'screenshot.png','screenshot.jpg','screenshot.jpeg','screenshot.webp',
+        'thumbnail.png','thumbnail.jpg','thumbnail.jpeg','thumbnail.webp',
+        'cover.png','cover.jpg','hero.png','banner.png'
+      ];
+      const paths = ['', 'docs/', '.github/'];
+      const urls = [];
+      for (const p of paths) for (const n of names) urls.push(base + p + n);
+      return urls;
+    }
+
+    function replaceWithRealPreview(img, list, i) {
+      if (!list || i >= list.length) return; // keep banner
+      const test = new Image();
+      test.referrerPolicy = 'no-referrer';
+      test.decoding = 'async';
+      test.loading = 'lazy';
+      test.onload = () => {
+        img.classList.remove('loaded');
+        img.style.opacity = 0;
+        setTimeout(() => {
+          img.src = test.src;
+          img.onload = () => { img.style.opacity = 1; img.classList.add('loaded'); };
+        }, 60);
+      };
+      test.onerror = () => replaceWithRealPreview(img, list, i+1);
+      test.src = list[i];
+    }
+
+    // Quick banner generator (Canvas) — NO text shadow
+    function makeBanner(title) {
+      const w = 1280, h = 720;
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+
+      // background gradient based on hash of title
+      const seed = hash(title);
+      const c1 = colorFromSeed(seed ^ 0x9e3779b9, 0.45);
+      const c2 = colorFromSeed(seed ^ 0x7f4a7c15, 0.75);
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, c1); grad.addColorStop(1, c2);
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+
+      // subtle grid
+      ctx.globalAlpha = 0.08; ctx.strokeStyle = '#ffffff';
+      for (let x=0; x<w; x+=48){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+      for (let y=0; y<h; y+=48){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+      ctx.globalAlpha = 1;
+
+      // clean title (no shadow pass)
+      const text = title.replace(/[-_]/g, ' ');
+      fitAndDrawTitle(ctx, text, w, h);
+
+      // small tag
+      ctx.font = '28px ui-monospace, Menlo, Consolas, monospace';
+      ctx.fillStyle = 'rgba(231,242,233,0.85)';
+      ctx.fillText('github.com/mrticky', 70, h - 70);
+
+      return c.toDataURL('image/png');
+    }
+
+    function fitAndDrawTitle(ctx, text, w, h){
+      const maxWidth = w - 140;
+      let size = 96;
+      ctx.font = `bold ${size}px ui-monospace, Menlo, Consolas, monospace`;
+      while (ctx.measureText(text).width > maxWidth && size > 32) {
+        size -= 4;
+        ctx.font = `bold ${size}px ui-monospace, Menlo, Consolas, monospace`;
+      }
+      ctx.fillStyle = '#e7f2e9';
+      ctx.fillText(text, 70, h/2); // no shadow, crisp text
+    }
+
+    function hash(str){
+      let h = 2166136261 >>> 0;
+      for (let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return h >>> 0;
+    }
+    function colorFromSeed(seed, lightness=0.6){
+      const h = seed % 360;
+      const s = 60 + (seed % 20);
+      const l = Math.floor(lightness*100);
+      return `hsl(${h} ${s}% ${l}%)`;
+    }
+
+    function timeSince(date) {
+      const s = Math.floor((Date.now() - date.getTime()) / 1000);
+      const units = [['y',31536000],['mo',2592000],['d',86400],['h',3600],['m',60]];
+      for (const [u, sec] of units) {
+        const v = Math.floor(s / sec);
+        if (v >= 1) return `${v}${u} ago`;
+      }
+      return 'just now';
+    }
+
+    function escapeHTML(str) {
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+    function escapeAttr(str) {
+      return escapeHTML(str).replace(/"/g, '&quot;');
+    }
+
+    q.addEventListener('input', render);
+    sortSel.addEventListener('change', render);
+    hideForks.addEventListener('change', render);
+
+    fetchRepos();
+  </script>
+</body>
+</html>
+
