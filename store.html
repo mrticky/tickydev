@@ -82,26 +82,29 @@
     .btn.primary{background:linear-gradient(135deg,var(--accent) 0%,#9d7bff 80%);color:#0b0b12;border:none}
     .desc{border-top:1px solid var(--edge);padding-top:12px;color:var(--muted);font-size:14px;white-space:pre-line}
   .desc-title{margin:10px 0 6px;color:var(--muted);font-size:14px;font-weight:700}
-    /* previews */
-    .previews{margin-top:10px;display:flex;gap:10px;align-items:center}
-    .preview-thumb{width:160px;height:100px;object-fit:cover;border-radius:10px;border:1px solid var(--edge);cursor:pointer;transition:transform .18s ease,opacity .18s ease}
-    .preview-thumb:hover{transform:scale(1.03);opacity:.95}
-
-    /* modal/lightbox for preview */
-    .preview-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:120}
-    .preview-modal.open{display:flex}
-    .preview-modal .scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);opacity:0;transition:opacity .28s}
-    .preview-modal.open .scrim{opacity:1}
-    .preview-panel{position:relative;z-index:121;max-width:90%;max-height:90%;border-radius:12px;overflow:hidden;transform:scale(.96);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s}
-    .preview-modal.open .preview-panel{transform:none;opacity:1}
-    .preview-panel img{display:block;width:100%;height:auto;max-height:80vh;object-fit:contain;background:#060708}
-    .preview-close{position:absolute;top:8px;right:8px;z-index:125}
+  /* store empty state */
+  /* center the empty-store card in the middle of the page (below header) */
+  .store-empty{display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 160px);padding:18px 0}
+  /* span the full grid so the card is centered on the page (not confined to first column) */
+  .store-empty{grid-column:1 / -1;justify-self:center}
+  /* keep a small upward nudge so the card sits closer to the hero but does not overlap */
+  .store-empty .card{max-width:720px;text-align:center;padding:28px;margin:0;margin-top:-10px;transition:margin .28s ease}
+  .store-empty{display:flex;justify-content:center;align-items:center;padding:18px 0;min-height:0}
+  .store-empty .card p{color:var(--muted);margin-top:10px}
 
     footer{text-align:center;color:var(--muted);font-size:13px;margin:40px 0}
 
     @media (max-width:1100px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     @media (max-width:760px){.wrap{padding:16px}.grid{grid-template-columns:1fr 1fr}}
     @media (max-width:440px){.grid{grid-template-columns:1fr}}
+    @media (max-width:760px){
+      /* reduce upward offset on smaller screens to avoid overlap */
+      .store-empty .card{margin-top:0}
+    }
+
+    /* keep footer fixed at bottom of viewport on this page */
+    body{padding-bottom:92px}
+    footer{text-align:center;color:var(--muted);font-size:13px;margin:0;position:fixed;left:0;right:0;bottom:18px;z-index:20}
   </style>
 </head>
 <body>
@@ -132,26 +135,14 @@
 
     <!-- Product grid (keep it light/blank-ish) -->
     <section class="section">
-  <div class="grid" id="grid">
-        <!-- Single product kept per request. Other products removed. -->
-        <article class="card"
-          data-title="Headless and Korblox Roblox Account"
-          data-price="299.99"
-          data-currency="£"
-          data-stock="1"
-          data-image="boxpfp.png"
-          data-desc="Headless Horseman\nKorblox Deathspeaker\nViolet Valkyrie\n100s male outfits\nOld Limiteds on page"
-          data-checkout="https://buy.stripe.com/6oUeVdeG67Xzh0C2J4c3m00"> <!-- Stripe Checkout link -->
-          <div class="thumb"></div>
-          <div class="card-body">
-            <p class="kicker">Product</p>
-            <h3 class="title">Headless and Korblox Roblox Account</h3>
-            <div class="stats"><span>£299,99</span><span>•</span><span>In stock: 1</span></div>
+      <div class="grid" id="grid">
+        <div class="store-empty">
+          <div class="card">
+            <p class="kicker">Store</p>
+            <h3 class="title">Nothing is up for sale right now.</h3>
+            <p>Check back later. For inquiries, <a href="contact.html" style="color:var(--acc1);text-decoration:none">contact me</a>.</p>
           </div>
-        </article>
-      </div>
-      <div style="text-align:center;margin-top:14px">
-        <button id="showMore" class="btn" aria-expanded="false">Show more</button>
+        </div>
       </div>
     </section>
 
@@ -190,26 +181,12 @@
           </div>
 
           <div class="desc" id="pDesc"></div>
-        
-          <div class="previews-header">
-            <h4 class="desc-title">Previews</h4>
-          </div>
-          <div class="previews">
-            <img id="previewImg" class="preview-thumb" src="headlessaccountpreview.png" alt="Preview image">
-          </div>
         </div>
       </div>
     </aside>
   </div>
 
-  <!-- Preview modal/lightbox -->
-  <div class="preview-modal" id="previewModal" aria-hidden="true">
-    <div class="scrim" id="previewScrim"></div>
-    <div class="preview-panel" role="dialog" aria-modal="true">
-      <button class="close preview-close" id="previewClose">Close</button>
-      <img id="previewLarge" src="" alt="Preview large">
-    </div>
-  </div>
+  <!-- (previews removed) -->
 
   <script>
     document.getElementById('y').textContent = new Date().getFullYear();
@@ -315,33 +292,7 @@
       updateVisibility();
     })();
 
-    // Preview modal logic (thumbnail -> large modal with fade+scale)
-    (function(){
-      const thumb = document.getElementById('previewImg');
-      const modal = document.getElementById('previewModal');
-      const scrimP = document.getElementById('previewScrim');
-      const large = document.getElementById('previewLarge');
-      const closeP = document.getElementById('previewClose');
-      if(!thumb || !modal) return;
-
-      function openPreview(src, alt){
-        large.src = src;
-        large.alt = alt || '';
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden','false');
-      }
-      function closePreview(){
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden','true');
-        // remove src after transition to allow release
-        setTimeout(()=>{ large.src = ''; }, 300);
-      }
-
-      thumb.addEventListener('click', ()=> openPreview(thumb.src, thumb.alt));
-      scrimP && scrimP.addEventListener('click', closePreview);
-      closeP && closeP.addEventListener('click', closePreview);
-      window.addEventListener('keydown', e=>{ if(e.key==='Escape') closePreview(); });
-    })();
+    
   </script>
 </body>
 </html>
